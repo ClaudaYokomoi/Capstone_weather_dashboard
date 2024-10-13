@@ -1,4 +1,4 @@
-import ConvertForm from "../../capstone_weather_dashboard/src/components/ConvertForm";
+import ConvertForm from "./components/ConvertForm";
 
 const App = () => {
   return (

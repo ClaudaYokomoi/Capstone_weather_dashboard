@@ -1,5 +1,5 @@
-import { useEffect, useState } from 'react'
-import CurrencySelect from "./CurrencySelect"
+import { useEffect, useState, useCallback } from 'react';
+import CurrencySelect from "./CurrencySelect";
 
 const ConvertForm = () => {
   const [amount, setAmount] = useState("100");
@@ -11,10 +11,10 @@ const ConvertForm = () => {
   const handleSwapCurrencies = () => {
     setFromCurrency(toCurrency);
     setToCurrency(fromCurrency);
-  }
+  };
 
   // Function to fetch exchange rate
-  const getExchangeRate = async () => {
+  const getExchangeRate = useCallback(async () => {
     const API_KEY = import.meta.env.VITE_API_KEY;
     const API_URL = `https://v6.exchangerate-api.com/v6/${API_KEY}/latest/${fromCurrency}`;
 
@@ -26,24 +26,23 @@ const ConvertForm = () => {
       const data = await response.json();
       const rate = (data.conversion_rates[toCurrency] * amount).toFixed(2);
       setResult(`${amount} ${fromCurrency} = ${rate} ${toCurrency}`);
-      console.log(rate);
     } catch (error) {
       console.log(error);
     } finally {
       setIsLoading(false);
     }
-  }
+  }, [amount, fromCurrency, toCurrency]); // Add necessary dependencies here
 
   // Handle form submission
   const handleFormSubmit = (e) => {
     e.preventDefault();
     getExchangeRate();
-  }
+  };
 
   // Fetch exchange rate on initial render
   useEffect(() => {
     getExchangeRate();
-  }, []);
+  }, [getExchangeRate]); // Include getExchangeRate in the dependency array
 
   return (
     <form className="converter-form" onSubmit={handleFormSubmit}>
@@ -53,7 +52,7 @@ const ConvertForm = () => {
           type="number"
           className="form-input"
           value={amount}
-          onChange={e => setAmount(e.target.value)}
+          onChange={(e) => setAmount(e.target.value)}
           required
         />
       </div>
@@ -63,7 +62,7 @@ const ConvertForm = () => {
           <label className="form-label">From</label>
           <CurrencySelect 
             selectedCurrency={fromCurrency}
-            handleCurrency={e => setFromCurrency(e.target.value)}
+            handleCurrency={(e) => setFromCurrency(e.target.value)}
           />
         </div>
 
@@ -80,7 +79,7 @@ const ConvertForm = () => {
           <label className="form-label">To</label>
           <CurrencySelect 
             selectedCurrency={toCurrency}
-            handleCurrency={e => setToCurrency(e.target.value)}
+            handleCurrency={(e) => setToCurrency(e.target.value)}
           />
         </div>
       </div>
@@ -93,11 +92,10 @@ const ConvertForm = () => {
       </button>
 
       <p className="exchange-rate-result">
-        {/* Display the conversion result */}
         {isLoading ? "Getting exchange rate..." : result}
       </p>
     </form>
-  )
+  );
 }
 
 export default ConvertForm;
